@@ -1,0 +1,140 @@
+{{>_header}}
+
+<div class="grid main-content">
+    <div class="col-9-12 docs-content">
+        <h1 class="flow-title" style="margin-bottom: 10px;">{{ name }} <span class="flow-version">{{ versions.latest.version }}</span></h1>
+        <p class="flow-description">{{ description }}</p>
+        <p class="flowmeta flow-install">
+            <i class="icon-download-alt"></i> <code>npm install {{name}}</code>
+            <span class="flow-install-help"><a target="_blank" href="https://nodered.org/docs/getting-started/adding-nodes.html"><i class="icon-question-sign"></i></a></span>
+        </p>
+          {{{ readme }}}
+    </div>
+    <div class="col-3-12">
+          <div class="flowmeta">
+            <h4>Node Info</h4>
+            <div class="flowinfo"> Version: {{ versions.latest.version }}</div>
+            {{#updated_at_since}}<div class="flowinfo">  Updated {{ updated_at_since }}</div>{{/updated_at_since}}
+            {{#license}}<div class="flowinfo">License: {{ license }}</div>{{/license}}
+            <div class="flowinfo">Rating: <span id="node-stars"></span> {{#rating}} {{score}}</div>
+            <div class="flowinfo">({{count}} <i class="fa fa-user"></i>){{/rating}}</div>
+            <div class="flowinfo"><a target="_blank" href="https://npmjs.org/package/{{ name }}">View on npm</a></div>
+            {{#githubUrl}}<div class="flowinfo"><a target="_blank" href="{{githubUrl}}">View on GitHub</a></div>{{/githubUrl}}
+          </div>
+          {{#sessionuser}}
+          <div class="flowmeta">
+            <h4>Actions</h4>
+            <form id="form-rate" action="/node/{{_id}}/rate" method="POST">
+                <input name="_csrf" type="hidden" value="{{csrfToken}}">
+                <input name="rating" type="hidden">
+                <div class="flowinfo">Rate: <span id="set-stars"></span></div>
+            </form>
+            {{^refresh_requested}}<div class="flowinfo"><a href="/node/{{_id}}/refresh">Request refresh</a></div>{{/refresh_requested}}
+            {{#refresh_requested}}<div class="flowinfo">Refresh requested</a></div>{{/refresh_requested}}
+            <div class="flowinfo"><a id="report-node" href="/node/{{_id}}/report">Report this module</a></div>
+          </div>
+          {{/sessionuser}}
+
+          <div class="flowmeta">
+            <h4>Downloads</h4>
+            <div class="flowinfo"><span class="flow-stat flow-stat-day">{{ downloads.day }}</span> in the last day</div>
+            <div class="flowinfo"><span class="flow-stat flow-stat-week">{{ downloads.week }}</span> in the last week</div>
+            <div class="flowinfo"><span class="flow-stat flow-stat-month">{{ downloads.month }}</span> in the last month</div>
+          </div>
+          {{#types.length}}
+              <div class="flowmeta">
+                <h4>Nodes</h4>
+                 <ul style="list-style-type: none; padding:0; margin: 10px 20px;">
+                  {{#types}}
+                  {{>_palettenode}}
+                  {{/types}}
+                  </ul>
+              </div>
+          {{/types.length}}
+          <div class="flowmeta">
+            <h4>Keywords</h4>
+            <ul class="flow-tags">
+            {{#keywords}}
+            <li>{{.}}</li>
+            {{/keywords}}
+            </ul>
+          </div>
+          <div class="flowmeta">
+            <h4>Maintainers</h4>
+            <ul>
+            {{#maintainers}}
+            <li>{{name}}</li>
+            {{/maintainers}}
+            </ul>
+            {{#contributors.length}}
+            <h4>Contributors</h4>
+            <ul>
+            {{#contributors}}
+            <li>{{name}}</li>
+            {{/contributors}}
+            {{/contributors.length}}
+          </div>
+      </div>
+</div>
+{{#sessionuser}}{{/sessionuser}}
+<div id="report-node-shade">
+    <div id="report-node-dialog">
+        <form action="/node/{{_id}}/report" method="POST">
+            <input name="_csrf" type="hidden" value="{{csrfToken}}">
+        <h4>Report this module</h4>
+        <p>The modules on this site are automatically indexed from npm. If you have a concern
+           about this module, please let us know. For example, if you believe it contains
+           unsuitable or inappropriate material.</p>
+        <p>This is <b>not</b> the place to seek help with the module - for that, please
+            contact its maintainers directly.</p>
+        <p>Please provide some details about the module:</p>
+        <div><textarea name="details" id="details"></textarea></div>
+        <div id="report-node-dialog-buttons">
+            <button type="button" onclick="return closeDialog();">Cancel</button> <button type="submit">Report</button>
+        </div>
+        </form>
+    </div>
+</div>
+<script>
+    function closeDialog() {
+        $("body").css({height:"",overflow:""});
+        $("#report-node-shade").hide();
+        return false;
+    }
+
+    $("#report-node").click(function(e) {
+        $("body").css({height:"100%",overflow:"hidden"});
+        e.preventDefault();
+        // var width = $("#report-node-shade").width();
+        // var height = $("#report-node-shade").height();
+
+        // $("#report-node-dialog").width(Math.min(width,400)).height(Math.min(height,500)).css({
+        // });
+        $("#report-node-shade").show();
+    });
+    
+    $.fn.raty.defaults.hints = ['bad', 'poor', 'regular', 'good', 'awesome'];
+    $.fn.raty.defaults.space = false;
+
+    $("#node-stars").raty({
+        {{#rating}}
+        score: {{score}},
+        {{/rating}}
+        readOnly: true});
+    
+    function rate(e) {
+        $("input[name=rating]").val(e);
+        $("#form-rate").submit();
+    };
+
+    $("#set-stars").raty({
+        {{#rating}}{{#userRating}}
+        score: {{rating}},
+        {{/userRating}}{{/rating}}
+        cancel: true,
+        click: utils.debounce(rate, 1000)});
+
+</script>
+
+{{#sessionuser}}{{/sessionuser}}
+{{>_footer}}

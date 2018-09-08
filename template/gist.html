@@ -1,0 +1,154 @@
+{{>_header}}
+
+<div class="grid main-content">
+    <div class="col-9-12 docs-content">
+        <h1 class="flow-title">{{ description }}</h1>
+          {{{ readme }}}
+          <pre id="flow" class="highlight language-javascript">{{ flow }}</pre>
+    </div>
+    <div class="col-3-12">
+          <div class="flowmeta">
+            <span class="flowuser">
+              <img src="{{ owner.avatar_url }}"/>
+              {{ owner.login }}</span>
+          </div>
+          <div class="flowmeta">
+            <h4>Flow Info</h4>
+            <div class="flowinfo">  created {{ created_at_since }}</div>
+            {{#updated_at_since}}<div class="flowinfo">  updated {{ updated_at_since }}</div>{{/updated_at_since}}
+            <div class="flowinfo"><a href="{{ html_url }}">view on github</a></div>
+            {{#owned}}
+                <div class="flowinfo" style="text-align: right;"><img id="refresh-flow-loader" class="loader" src="/images/loader.gif" />&nbsp;&nbsp;<a id="refresh-flow" href="#">refresh</a></div>
+                <div class="flowinfo" style="text-align: right;"><a id="remove-flow" href="#">remove</a></div>
+            {{/owned}}
+          </div>
+          <div class="flowmeta">
+            <h4>Node Types</h4>
+           {{#nodeTypes}}
+            {{#core.length}}
+             <h5>Core</h5>
+            <ul class="nodeTypeList">
+              {{#core}}
+              <li>{{type}} <span class="small">(x{{count}})</span></li>
+              {{/core}}
+            </ul>
+            {{/core.length}}
+            {{#other.length}}
+             <h5>Other</h5>
+            <ul class="nodeTypeList">
+              {{#other}}
+              <li>{{#module}}<a href="/node/{{module}}">{{/module}}{{type}}{{#module}}</a>{{/module}} <span class="small">(x{{count}})</span></li>
+              {{/other}}
+            </ul>
+            {{/other.length}}
+           {{/nodeTypes}}
+            
+          </div>
+          <div class="flowmeta">
+            <h4>Tags</h4>
+            <ul class="flow-tags">
+            {{#tags}}
+            <li tag="{{.}}">{{.}}</li>
+            {{/tags}}
+            </ul>
+            {{#owned}}
+                <div class="flowinfo" style="text-align: right;"><a id="edit-tags" href="#">edit</a> <a style="margin-right: 10px; display:none;" id="edit-tags-cancel" href="#">cancel</a>  <img id="edit-tags-done-loader" class="loader" src="/images/loader.gif" /> <a style="display:none;" id="edit-tags-done" href="#">done</a></div>
+            {{/owned}}
+
+          </div>
+          <div class="flowmeta">
+            Copy this flow JSON to your clipboard and then import into Node-RED using the <i>Import From &gt; Clipboard</i> (Ctrl-I) menu option
+          </div>
+    </div>
+</div>
+<script src="/js/tags.js"></script>
+<script>
+$(function() {
+    function selectText(containerid) {
+        if (document.selection) {
+            var range = document.body.createTextRange();
+            range.moveToElementText(document.getElementById(containerid));
+            range.select();
+        } else if (window.getSelection) {
+            var range = document.createRange();
+            range.selectNode(document.getElementById(containerid));
+            window.getSelection().addRange(range);
+        }
+    }
+    $('#flow').click(function() {
+        selectText('flow');
+    });
+
+{{#owned}}
+    $('#refresh-flow').click(function(event) {
+        $("#refresh-flow-loader").show();
+        $.post("/flow/{{ id }}/refresh",function(data,textStatus,jqXHR) {
+            if (jqXHR.status != 304) {
+                window.location.reload();
+            }
+            $("#refresh-flow-loader").hide();
+        }).fail(function(err) {
+            window.location.reload();
+        });
+        event.preventDefault();
+    });
+    
+    $('#remove-flow').click(function(event) {
+        $.post("/flow/{{ id }}/delete",function(data,textStatus,jqXHR) {
+            if (jqXHR.status != 304) {
+                window.location = "/";
+            }
+        });
+        event.preventDefault();
+    });
+            
+    
+    var tagEditor = null;
+    $('#edit-tags').click(function(event) {
+        event.preventDefault();
+        $('ul.flow-tags').attr('id',"add-flow-tags");
+        tagEditor = tagger({lipre:'',lipost:''});
+        $('#edit-tags').hide();
+        $('#edit-tags-cancel').show();
+        $('#edit-tags-done').show();
+        $('ul.flow-tags').click();
+    });
+    
+    $('#edit-tags-cancel').click(function(event) {
+        if (tagEditor) {
+            $('#edit-tags-cancel').hide();
+            $('#edit-tags-done').hide();
+            tagEditor.cancel();
+            $('ul.flow-tags').attr('id',"");
+            $('#edit-tags').show();
+        }
+        event.preventDefault();
+    });
+        
+    
+    $('#edit-tags-done').click(function(event) {
+        $("#edit-tags-done-loader").show();
+        if (tagEditor) {
+            $('#edit-tags-cancel').hide();
+            $('#edit-tags-done').hide();
+            var tags = tagEditor.get();
+            $.post("/flow/{{ id }}/tags",{tags:tags},function(data) {
+                tagEditor.strip();
+                $('ul.flow-tags').attr('id',"");
+                tagEditor = null;
+                $('#edit-tags').show();
+                $("#edit-tags-done-loader").hide();
+            }).fail(function(err) {
+                console.log(err);
+                $("#edit-tags-done-loader").hide();
+            });
+        }
+        event.preventDefault();
+    });
+{{/owned}}
+            
+
+});
+
+</script>
+{{>_footer}}

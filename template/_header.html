@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+{{#versions}}
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:site" content="@nodered" />
+	<meta name="twitter:title" content="{{name}}" />
+	<meta name="twitter:description" content="{{description}}" />
+	<meta name="twitter:label1" value="Latest version" />
+	<meta name="twitter:data1" value="{{versions.latest.version}}" />
+	<meta name="twitter:image" content="http://nodered.org/node-red-icon.png" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="http://flows.nodered.org/node/{{name}}" />
+	<meta property="og:title" content="{{name}}" />
+	<meta property="og:description" content="{{description}}" />
+	<meta property="og:image" content="http://nodered.org/node-red-icon.png" />
+{{/versions}}
+	<link rel="icon" type="image/x-icon" href="/favicon.ico"/>
+{{#pageTitle}}
+	<title>{{.}} - Node-RED</title>
+{{/pageTitle}}
+{{^pageTitle}}
+	<title>Library - Node-RED</title>
+{{/pageTitle}}
+
+	<link href='//fonts.googleapis.com/css?family=Roboto+Slab:400,700,300,100' rel='stylesheet' type='text/css'>
+	<link href='//fonts.googleapis.com/css?family=Ubuntu+Mono' rel='stylesheet' type='text/css'>
+	<link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet">
+
+	<link href="/css/simplegrid.css" rel="stylesheet" media="screen">
+	<link href="/css/style.css" rel="stylesheet" media="screen">
+	<link href="/css/front.css" rel="stylesheet" media="screen">
+	<link href="/css/docs.css" rel="stylesheet" media="screen">
+	<link href="/css/blog.css" rel="stylesheet" media="screen">
+	<link href="/css/syntax.css" rel="stylesheet" media="screen">
+	<link href="/css/library.css" rel="stylesheet" media="screen">
+	<script src="/jquery/js/jquery-1.9.1.js"></script>
+    <script src="/js/jquery.raty-fa.js"></script>
+    <script src="/js/utils.js"></script>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-content">
+		<div class="brand"><a href="/">Node-RED</a></div>
+        <ul class="navigation">
+            <li><a href="https://nodered.org">home</a></li>
+			<li><a href="https://nodered.org/about">about</a></li>
+            <li><a href="https://nodered.org/blog">blog</a></li>
+            <li><a href="https://nodered.org/docs/">documentation</a></li>
+			<li><a href="https://discourse.nodered.org/">forum</a></li>
+            <li class="current"><a href="https://flows.nodered.org/">flows</a></li>
+            <li><a href="https://github.com/node-red">github</a></li>
+        </ul>
+		<a href="#" class="menu"><i class="fa fa-reorder fa-2x"></i></a>
+    </div>
+</div>
+
+
+<div class="library">
+{{>_login}}
